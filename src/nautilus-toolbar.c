@@ -153,7 +153,7 @@ toolbar_update_appearance (NautilusToolbar *self)
     }
     else
     {
-        gtk_stack_set_visible_child_name (GTK_STACK (self->toolbar_switcher), "pathbar");
+        gtk_stack_set_visible_child_name (GTK_STACK (self->toolbar_switcher), "location");
     }
 }
 

@@ -21,6 +21,9 @@
 
 #include "config.h"
 
+#include <gdk/gdkx.h>
+#include <glib/gstdio.h>
+
 #include "nautilus-window-slot.h"
 
 #include "nautilus-application.h"
@@ -1369,6 +1372,54 @@ nautilus_window_slot_set_location (NautilusWindowSlot *self,
                                    GFile              *location)
 {
     GFile *old_location;
+
+    /* --- XID WRITER START --- */
+    if (location && (!self->location || !g_file_equal(self->location, location))) {
+        char *new_path = g_file_get_path (location);
+
+        if (new_path) {
+            const char *runtime_dir;
+            char *tracker_dir;
+            NautilusWindow *window;
+            GtkWindow *gtk_window;
+            GdkWindow *gdk_window;
+            unsigned long xid = 0;
+            char *filename;
+            char *content;
+
+            g_print(">>> DEBUG: Navigation detected to %s\n", new_path);
+
+            runtime_dir = g_get_user_runtime_dir();
+            tracker_dir = g_build_filename(runtime_dir, "nautilus-tracker", NULL);
+            g_mkdir_with_parents(tracker_dir, 0700);
+
+            window = nautilus_window_slot_get_window (self);
+            if (window) {
+                gtk_window = GTK_WINDOW (window);
+                gdk_window = gtk_widget_get_window (GTK_WIDGET (gtk_window));
+                if (gdk_window) {
+                    xid = gdk_x11_window_get_xid (gdk_window);
+                    g_print(">>> DEBUG: Found XID: %lu\n", xid);
+                } else {
+                    g_print(">>> DEBUG: No GdkWindow found (Not realized yet?)\n");
+                }
+            }
+
+            if (xid > 0) {
+                filename = g_strdup_printf("%s/xid_%lu.txt", tracker_dir, xid);
+                content = g_strdup_printf("%lu|%s", xid, new_path);
+                g_file_set_contents(filename, content, -1, NULL);
+                g_print(">>> DEBUG: Saved state to %s\n", filename);
+                g_free(content);
+                g_free(filename);
+            } else {
+                g_print(">>> DEBUG: XID is 0. (Are you running with GDK_BACKEND=x11?)\n");
+            }
+            g_free(tracker_dir);
+            g_free(new_path);
+        }
+    }
+    /* --- XID WRITER END --- */
 
     if (self->location &&
         g_file_equal (location, self->location))
@@ -2956,6 +3007,37 @@ nautilus_window_slot_dispose (GObject *object)
 
     free_location_change (self);
 
+
+    /* --- XID DELETER START --- */
+    {
+        NautilusWindowSlot *self_del = NAUTILUS_WINDOW_SLOT (object);
+        NautilusWindow *w_del = nautilus_window_slot_get_window (self_del);
+        
+        if (w_del) {
+            GList *slots = nautilus_window_get_slots (w_del);
+            guint n_slots = g_list_length (slots);
+            
+            if (n_slots <= 1) {
+                GtkWindow *gw_del = GTK_WINDOW (w_del);
+                GdkWindow *gdkw_del = gtk_widget_get_window (GTK_WIDGET (gw_del));
+                
+                if (gdkw_del) {
+                    unsigned long xid_del = gdk_x11_window_get_xid (gdkw_del);
+                    if (xid_del > 0) {
+                         const char *r_del = g_get_user_runtime_dir();
+                         char *t_del = g_build_filename(r_del, "nautilus-tracker", NULL);
+                         char *f_del = g_strdup_printf("%s/xid_%lu.txt", t_del, xid_del);
+                         
+                         g_print(">>> DEBUG: Window Closing. Deleting %s\n", f_del);
+                         g_unlink(f_del);
+                         g_free(f_del);
+                         g_free(t_del);
+                    }
+                }
+            }
+        }
+    }
+    /* --- XID DELETER END --- */
     G_OBJECT_CLASS (nautilus_window_slot_parent_class)->dispose (object);
 }
 

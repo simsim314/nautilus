@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.0 -->
+<?xml version='1.0' encoding='UTF-8'?>
 <interface>
-  <requires lib="gtk+" version="3.22"/>
+  <requires lib="gtk+" version="3.22" />
   <object class="GtkPopover" id="back_menu">
     <property name="position">bottom</property>
     <property name="relative-to">back_button</property>
@@ -13,21 +12,11 @@
   <menu id="view_menu">
     <section>
       <attribute name="display-hint">horizontal-buttons</attribute>
-      <!--
-           Zoom section.
-
-           The toolbar code assumes this is the first item of this menu model.
-           Its contents is provided by the view.
-      -->
+      
     </section>
     <section>
       <attribute name="label" translatable="yes" context="menu item" comments="Translators: a menu item in a group of sorting options in a toolbar menu, with criterions such as &quot;A-Z&quot; or &quot;Last Modified&quot;.">Sort</attribute>
-      <!--
-           Sort section.
-
-           The toolbar code assumes this is the second item of this menu model.
-           Its contents is provided by the view.
-      -->
+      
     </section>
     <section>
       <item>
@@ -67,9 +56,7 @@
       </item>
     </section>
     <section id="undo_redo_section">
-      <!-- Note: This section is often recreated by undo_manager_changed() to
-           change the labels of the actions. If you change anything here,
-           remember to change in the code as well. -->
+      
       <item>
         <attribute name="label" translatable="yes">_Undo</attribute>
         <attribute name="action">win.undo</attribute>
@@ -128,7 +115,7 @@
             <property name="selection-mode">none</property>
             <property name="activate-on-single-click">False</property>
             <style>
-              <class name="operations-list"/>
+              <class name="operations-list" />
             </style>
           </object>
         </child>
@@ -165,7 +152,7 @@
               <object class="GtkBox" id="location_entry_container">
                 <property name="can_focus">False</property>
                 <style>
-                  <class name="linked"/>
+                  <class name="linked" />
                 </style>
               </object>
               <packing>
@@ -204,7 +191,7 @@
               </object>
             </child>
             <style>
-              <class name="image-button"/>
+              <class name="image-button" />
             </style>
           </object>
           <packing>
@@ -235,7 +222,7 @@
               </object>
             </child>
             <style>
-              <class name="image-button"/>
+              <class name="image-button" />
             </style>
           </object>
           <packing>
@@ -260,16 +247,40 @@
               </object>
             </child>
             <style>
-              <class name="image-button"/>
+              <class name="image-button" />
             </style>
           </object>
           <packing>
             <property name="position">1</property>
           </packing>
         </child>
+        <child>
+      <object class="GtkButton" id="up_button">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="tooltip_text" translatable="yes">Parent Folder</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="action_name">win.up</property>
+        <child>
+          <object class="GtkImage" id="up_icon">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="icon_name">go-up-symbolic</property>
+            <property name="icon_size">1</property>
+          </object>
+        </child>
         <style>
-          <class name="linked"/>
-          <class name="raised"/>
+          <class name="image-button" />
+        </style>
+      </object>
+      <packing>
+        <property name="position">2</property>
+      </packing>
+    </child><style>
+          <class name="linked" />
+          <class name="raised" />
         </style>
       </object>
     </child>
@@ -292,7 +303,7 @@
                 <property name="tooltip_text" translatable="yes">Show operations</property>
                 <property name="margin_end">6</property>
                 <property name="popover">operations_popover</property>
-                <signal name="toggled" handler="on_operations_button_toggled" object="NautilusToolbar" swapped="yes"/>
+                <signal name="toggled" handler="on_operations_button_toggled" object="NautilusToolbar" swapped="yes" />
                 <child>
                   <object class="GtkDrawingArea" id="operations_icon">
                     <property name="width_request">16</property>
@@ -301,11 +312,11 @@
                     <property name="can_focus">False</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
-                    <signal name="draw" handler="on_operations_icon_draw" object="NautilusToolbar" swapped="no"/>
+                    <signal name="draw" handler="on_operations_icon_draw" object="NautilusToolbar" swapped="no" />
                   </object>
                 </child>
                 <style>
-                  <class name="button"/>
+                  <class name="button" />
                 </style>
               </object>
             </child>
@@ -336,7 +347,7 @@
                   </object>
                 </child>
                 <style>
-                  <class name="image-button"/>
+                  <class name="image-button" />
                 </style>
               </object>
               <packing>
@@ -360,7 +371,7 @@
                   </object>
                 </child>
                 <style>
-                  <class name="disclosure-button"/>
+                  <class name="disclosure-button" />
                 </style>
               </object>
               <packing>
@@ -368,7 +379,7 @@
               </packing>
             </child>
             <style>
-              <class name="linked"/>
+              <class name="linked" />
             </style>
           </object>
           <packing>
@@ -392,7 +403,7 @@
               </object>
             </child>
             <style>
-              <class name="image-button"/>
+              <class name="image-button" />
             </style>
           </object>
           <packing>
