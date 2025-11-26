@@ -1,3 +1,29 @@
+# Custom Nautilus (for GNOME 42)
+## Features
+
+1.  **Parent Directory Button:**
+    *   Restores the classic "Up" arrow button in the main toolbar, allowing one-click navigation to the parent folder.
+    *   Placed conveniently next to the Back/Forward buttons.
+
+2.  **Live Session Tracking:**
+    *   Automatically tracks the location of every open Nautilus window in real-time.
+    *   Enables **View Open Folders** functionality: You can view all your open folders windows and their Workspaces using the included Python script.
+    *   Self-cleaning: When you close a window, it is automatically removed from the tracker.
+
+## How to Use
+
+*   **Normal Usage:** Launch Nautilus as usual. The "Up" button will appear automatically.
+*   **Display Live Session:** ``` python track_nautilus.py ```
+  
+## Technical Implementation (Short)
+
+*   **UI Modification:** The "Up" button was injected into `src/resources/ui/nautilus-toolbar.ui`, linking to the internal `win.up` action.
+*   **C Code Logic:** `src/nautilus-window-slot.c` was patched to:
+    *   **Write:** Save the current X11 Window ID (XID) and Path to a temporary file in `/run/user/$UID/nautilus-tracker/` whenever the folder changes.
+    *   **Delete:** Detect when a window (or its last tab) is closing and immediately delete the corresponding tracker file.
+*   **Backend:** The application is forced to run with `GDK_BACKEND=x11` to ensure valid Window IDs are available for workspace matching.
+*   
+
 # nautilus
 [![Pipeline status](https://gitlab.gnome.org/GNOME/nautilus/badges/master/pipeline.svg)](https://gitlab.gnome.org/GNOME/nautilus/commits/master)
 
