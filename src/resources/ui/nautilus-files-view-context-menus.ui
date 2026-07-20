@@ -31,6 +31,13 @@
         <attribute name="action">view.select-all</attribute>
       </item>
     </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Open Terminal _Here</attribute>
+        <attribute name="action">view.open-terminal</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+      </item>
+    </section>
     <section id="background-extensions-section">
     </section>
     <section>
@@ -78,6 +85,13 @@
       <item>
         <attribute name="label" translatable="yes">Open In New _Window</attribute>
         <attribute name="action">view.open-item-new-window</attribute>
+        <attribute name="hidden-when">action-disabled</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Open Terminal _Here</attribute>
+        <attribute name="action">view.open-terminal</attribute>
         <attribute name="hidden-when">action-disabled</attribute>
       </item>
     </section>

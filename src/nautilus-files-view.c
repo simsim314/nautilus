@@ -6584,6 +6584,76 @@ action_run_in_terminal (GSimpleAction *action,
     g_chdir (old_working_dir);
 }
 
+static gboolean
+can_open_terminal (NautilusFilesView *view)
+{
+    g_autofree char *path = NULL;
+
+    /* Exclude virtual and special locations. */
+    if (showing_trash_directory (view) ||
+        showing_recent_directory (view) ||
+        showing_starred_directory (view) ||
+        nautilus_view_is_searching (NAUTILUS_VIEW (view)))
+    {
+        return FALSE;
+    }
+
+    /* Only for local filesystem directories.  get_view_directory() returns
+     * NULL when g_file_get_path() fails on the current model URI (i.e. the
+     * location is not native, such as an sftp/afp/network mount). */
+    path = get_view_directory (view);
+
+    return path != NULL;
+}
+
+static void
+action_open_terminal (GSimpleAction *action,
+                      GVariant      *state,
+                      gpointer       user_data)
+{
+    NautilusFilesView *view;
+    g_autofree char *old_working_dir = NULL;
+    g_autofree char *path = NULL;
+    g_autoptr (GSettings) terminal_settings = NULL;
+    g_autofree char *terminal_exec = NULL;
+    GtkWindow *parent_window;
+    GdkScreen *screen;
+
+    g_assert (NAUTILUS_IS_FILES_VIEW (user_data));
+
+    view = NAUTILUS_FILES_VIEW (user_data);
+
+    path = get_view_directory (view);
+    if (path == NULL)
+    {
+        return;
+    }
+
+    /* chdir so the spawned terminal inherits the displayed directory as
+     * its working directory, mirroring action_run_in_terminal(). */
+    old_working_dir = change_to_view_directory (view);
+
+    parent_window = nautilus_files_view_get_containing_window (view);
+    screen = gtk_widget_get_screen (GTK_WIDGET (parent_window));
+
+    terminal_settings = g_settings_new ("org.gnome.desktop.default-applications.terminal");
+    terminal_exec = g_settings_get_string (terminal_settings, "exec");
+
+    if (terminal_exec == NULL || *terminal_exec == '\0')
+    {
+        terminal_exec = g_strdup ("xterm");
+    }
+
+    DEBUG ("Opening terminal in %s", path);
+
+    /* Launch the default terminal emulator directly (use_terminal = FALSE)
+     * so the terminal process itself is started, inheriting the cwd set
+     * above. */
+    nautilus_launch_application_from_command (screen, terminal_exec, FALSE, NULL);
+
+    g_chdir (old_working_dir);
+}
+
 #define BG_KEY_PRIMARY_COLOR      "primary-color"
 #define BG_KEY_SECONDARY_COLOR    "secondary-color"
 #define BG_KEY_COLOR_TYPE         "color-shading-type"
@@ -7138,6 +7208,7 @@ const GActionEntry view_entries[] =
     { "properties", action_properties},
     { "current-directory-properties", action_current_dir_properties},
     { "run-in-terminal", action_run_in_terminal },
+    { "open-terminal", action_open_terminal },
     { "set-as-wallpaper", action_set_as_wallpaper },
     { "mount-volume", action_mount_volume },
     { "unmount-volume", action_unmount_volume },
@@ -7667,6 +7738,9 @@ real_update_actions_state (NautilusFilesView *view)
     action = g_action_map_lookup_action (G_ACTION_MAP (view_action_group),
                                          "run-in-terminal");
     g_simple_action_set_enabled (G_SIMPLE_ACTION (action), can_run_in_terminal (selection));
+    action = g_action_map_lookup_action (G_ACTION_MAP (view_action_group),
+                                         "open-terminal");
+    g_simple_action_set_enabled (G_SIMPLE_ACTION (action), can_open_terminal (view));
     action = g_action_map_lookup_action (G_ACTION_MAP (view_action_group),
                                          "set-as-wallpaper");
     g_simple_action_set_enabled (G_SIMPLE_ACTION (action), can_set_wallpaper (selection));
